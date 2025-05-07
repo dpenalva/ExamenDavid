@@ -75,22 +75,41 @@
 </template>
 
 <script setup>
+// Importamos los componentes y utilidades necesarios
 import { Head, Link } from '@inertiajs/vue3';
 import ZapatosLayout from '@/Layouts/ZapatosLayout.vue';
 import { router } from '@inertiajs/vue3';
 
+// Props recibidas desde el controlador
 const props = defineProps({
-    categorias: Array
+    categorias: Array  // Lista de categorías con el contador de zapatos (zapatos_count)
 });
 
+/**
+ * Función para eliminar una categoría
+ * 
+ * Esta función implementa una validación en el frontend para evitar
+ * enviar peticiones innecesarias al servidor cuando intentamos eliminar
+ * categorías que tienen zapatos asociados.
+ * 
+ * El backend también tiene su propia validación como medida de seguridad adicional.
+ */
 const eliminarCategoria = (categoria) => {
+    // Verificamos si la categoría tiene zapatos asociados
     if (categoria.zapatos_count > 0) {
+        // Si tiene zapatos, mostramos un mensaje de error y no hacemos nada más
         alert('No se puede eliminar esta categoría porque tiene zapatos asociados.');
-        return;
+        return; // Terminamos la función aquí
     }
     
+    // Si no tiene zapatos asociados, pedimos confirmación
     if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+        // Si confirma, enviamos una petición DELETE al servidor
+        // Esto llama al método destroy() del controlador de categorías
         router.delete(route('categorias.destroy', categoria.id));
+        // Inertia.js manejará la respuesta:
+        // - Si hay éxito, recargará la página con el mensaje de éxito
+        // - Si hay error, mostrará el error
     }
 };
 </script> 

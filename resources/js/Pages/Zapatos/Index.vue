@@ -145,85 +145,97 @@
 </template>
 
 <script setup>
+// Importamos los componentes y utilidades necesarios de Inertia.js y Vue
 import { Head, Link } from '@inertiajs/vue3';
 import ZapatosLayout from '@/Layouts/ZapatosLayout.vue';
 import { router } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
+// Props recibidas desde el controlador
 const props = defineProps({
-    zapatos: Object,
-    categorias: Array,
-    filters: Object
+    zapatos: Object,     // Lista paginada de zapatos
+    categorias: Array,   // Lista de categorías para el filtro
+    filters: Object      // Filtros actuales (búsqueda, categoría)
 });
 
-// Estado para el buscador y filtros
-const busqueda = ref('');
-const categoriaSeleccionada = ref('');
-let timeoutId = null;
+// Estado para los filtros (reactivo con ref)
+const busqueda = ref('');                // Texto de búsqueda
+const categoriaSeleccionada = ref('');   // Categoría seleccionada
+let timeoutId = null;                    // Para el debounce de búsqueda
 
-// Inicializar los filtros desde props si existen
+// Al montar el componente, inicializamos los filtros y eventos
 onMounted(() => {
+    // Si hay filtros en la URL, los cargamos
     if (props.filters) {
         busqueda.value = props.filters.search || '';
         categoriaSeleccionada.value = props.filters.categoria || '';
     }
     
-    // Añadir manejadores de eventos para accesibilidad por teclado
+    // Añadimos eventos para accesibilidad
     document.addEventListener('keydown', manejarTeclas);
 });
 
+// Al desmontar el componente, limpiamos los eventos
 onBeforeUnmount(() => {
     document.removeEventListener('keydown', manejarTeclas);
 });
 
-// Manejar navegación por teclado
+// Función para manejar eventos de teclado (accesibilidad)
 function manejarTeclas(e) {
-    // Permitir navegar con Escape para cerrar el modal de confirmación
+    // Si se presiona Escape y un botón tiene el foco, quitamos el foco
     if (e.key === 'Escape' && document.activeElement.tagName === 'BUTTON') {
         document.activeElement.blur();
     }
 }
 
-// Aplicar filtros
+// Función para aplicar los filtros y recargar la lista
 function aplicarFiltros() {
+    // Hacemos una petición GET a la misma página con los filtros como query params
     router.get(
         route('zapatos.index'),
         {
-            search: busqueda.value,
-            categoria: categoriaSeleccionada.value
+            search: busqueda.value,           // Parámetro de búsqueda
+            categoria: categoriaSeleccionada.value // Parámetro de categoría
         },
         {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['zapatos']
+            preserveState: true,    // Mantiene el estado del componente
+            preserveScroll: true,   // Mantiene la posición del scroll
+            only: ['zapatos']       // Solo actualiza los zapatos, no toda la página
         }
     );
 }
 
-// Buscar con delay para evitar muchas peticiones
+// Función para búsqueda con delay (debounce)
+// Evita hacer muchas peticiones al servidor cuando el usuario escribe rápido
 function buscarConDelay() {
-    // Cancelar el timeout anterior si existe
+    // Cancelamos cualquier timeout anterior
     if (timeoutId) {
         clearTimeout(timeoutId);
     }
     
-    // Crear un nuevo timeout de 300ms
+    // Creamos un nuevo timeout de 300ms
     timeoutId = setTimeout(() => {
         aplicarFiltros();
     }, 300);
 }
 
-// Limpiar filtros
+// Función para limpiar todos los filtros
 function limpiarFiltros() {
     busqueda.value = '';
     categoriaSeleccionada.value = '';
     router.get(route('zapatos.index'));
 }
 
-// Eliminar zapato
+// Función para eliminar un zapato
 function eliminarZapato(id) {
+    // Pedimos confirmación al usuario
     if (confirm('¿Estás seguro de que deseas eliminar este zapato?')) {
+        // Si confirma, enviamos una petición DELETE al servidor
+        // Esto llama al método destroy() del controlador
         router.delete(route('zapatos.destroy', id));
+        // Inertia.js manejará la respuesta automáticamente:
+        // - Si hay éxito, recargará la página con el mensaje de éxito
+        // - Si hay error, mostrará el error
     }
 }
 </script>
