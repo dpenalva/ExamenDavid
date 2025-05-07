@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Zapato extends Model
+class Categoria extends Model
 {
     use HasFactory;
     
@@ -16,19 +16,14 @@ class Zapato extends Model
      */
     protected $fillable = [
         'nombre',
-        'marca',
-        'talla',
-        'color',
-        'precio',
-        'stock',
-        'categoria_id',
+        'descripcion',
     ];
 
     /**
-     * Obtiene la categoría a la que pertenece el zapato.
+     * Obtiene los zapatos relacionados con esta categoría.
      */
-    public function categoria()
+    public function zapatos()
     {
-        return $this->belongsTo(Categoria::class);
+        return $this->hasMany(Zapato::class);
     }
-}
+} 
