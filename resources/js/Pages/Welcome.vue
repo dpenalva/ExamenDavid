@@ -83,8 +83,8 @@ const irACrearCategoria = () => {
                         {{ zapatosDestacados[indiceActual]?.marca }} - 
                         Precio: {{ zapatosDestacados[indiceActual]?.precio }}€
                     </p>
-                </div>
-                
+                            </div>
+
                 <!-- Contenedor del carrusel -->
                 <div 
                     style="display: flex; height: 100%;" 
@@ -107,11 +107,11 @@ const irACrearCategoria = () => {
                             <p style="margin: 0;">
                                 Marca: {{ zapato.marca }} | 
                                 Precio: {{ zapato.precio }}€
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                 <!-- Controles del carrusel -->
                 <button 
                     @click="anteriorSlide" 
@@ -125,8 +125,8 @@ const irACrearCategoria = () => {
                 >
                     &gt;
                 </button>
-            </div>
-            
+                            </div>
+
             <!-- Sección de Zapatos -->
             <div style="background-color: #d1d1d1; text-align: center; color: black; padding: 20px;">
                 Zapatos:
@@ -137,9 +137,9 @@ const irACrearCategoria = () => {
                     <button @click="irAListadoZapatos" style="background-color: white; color: black; font-weight: bold; padding: 8px 15px; border: 1px solid black; cursor: pointer;">
                         Ver Lista Zapatos
                     </button>
-                </div>
-            </div>
-            
+                            </div>
+                            </div>
+
             <!-- Sección de Categorías -->
             <div style="background-color: #e5e5e5; text-align: center; color: black; padding: 20px;">
                 Categorías:
@@ -150,10 +150,10 @@ const irACrearCategoria = () => {
                     <button @click="irAListadoCategorias" style="background-color: white; color: black; font-weight: bold; padding: 8px 15px; border: 1px solid black; cursor: pointer;">
                         Ver Lista Categorías
                     </button>
-                </div>
-            </div>
-        </main>
-        
+                        </div>
+                    </div>
+                </main>
+
         <Footer />
     </div>
 </template>
