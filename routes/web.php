@@ -15,8 +15,9 @@ Route::get('/', function () {
     ]);
 });
 
+// Redirección desde dashboard a zapatos
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return redirect()->route('zapatos.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Rutas para el CRUD de zapatos
