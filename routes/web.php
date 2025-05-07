@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ZapatoController;
+use App\Http\Controllers\CategoriaController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +26,9 @@ Route::get('/dashboard', function () {
 
 // Rutas para el CRUD de zapatos
 Route::resource('zapatos', ZapatoController::class);
+
+// Rutas para el CRUD de categorías
+Route::resource('categorias', CategoriaController::class);
 
 // Ruta para buscar zapatos
 Route::get('/zapatos/buscar', function(Request $request) {

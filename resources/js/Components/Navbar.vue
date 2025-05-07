@@ -4,6 +4,7 @@
             <Link :href="route('home')" style="font-size: 20px; font-weight: bold; color: white; text-decoration: none;">ZapatosApp</Link>
             <div style="display: flex; gap: 16px; align-items: center;">
                 <Link :href="route('zapatos.index')" style="color: white; text-decoration: none; padding: 5px 10px; transition: opacity 0.3s;">Zapatos</Link>
+                <Link :href="route('categorias.index')" style="color: white; text-decoration: none; padding: 5px 10px; transition: opacity 0.3s;">Categorías</Link>
                 <Link :href="route('zapatos.create')" style="color: white; text-decoration: none; padding: 5px 10px; transition: opacity 0.3s;">Crear Zapato</Link>
                 
                 <!-- Usuario autenticado -->

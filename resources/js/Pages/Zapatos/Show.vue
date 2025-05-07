@@ -22,6 +22,11 @@
                 </div>
                 
                 <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Categoría:</h3>
+                    <p style="font-size: 18px;">{{ zapato.categoria ? zapato.categoria.nombre : 'Sin categoría' }}</p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
                     <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Talla:</h3>
                     <p style="font-size: 18px;">{{ zapato.talla }}</p>
                 </div>

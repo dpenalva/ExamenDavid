@@ -20,6 +20,16 @@
                     <div v-if="form.errors.marca" style="color: red; margin-top: 5px;">{{ form.errors.marca }}</div>
                 </div>
                 
+                <!-- Categoría -->
+                <div style="margin-bottom: 15px;">
+                    <label for="categoria" style="display: block; margin-bottom: 5px; font-weight: bold;">Categoría:</label>
+                    <select id="categoria" v-model="form.categoria_id" style="width: 100%; padding: 8px; border: 1px solid #ccc;" required>
+                        <option value="" disabled>Selecciona una categoría</option>
+                        <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">{{ categoria.nombre }}</option>
+                    </select>
+                    <div v-if="form.errors.categoria_id" style="color: red; margin-top: 5px;">{{ form.errors.categoria_id }}</div>
+                </div>
+                
                 <!-- Talla -->
                 <div style="margin-bottom: 15px;">
                     <label for="talla" style="display: block; margin-bottom: 5px; font-weight: bold;">Talla:</label>
@@ -66,7 +76,8 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import ZapatosLayout from '@/Layouts/ZapatosLayout.vue';
 
 const props = defineProps({
-    zapato: Object
+    zapato: Object,
+    categorias: Array
 });
 
 const form = useForm({
@@ -75,7 +86,8 @@ const form = useForm({
     talla: props.zapato.talla,
     color: props.zapato.color,
     precio: props.zapato.precio,
-    stock: props.zapato.stock
+    stock: props.zapato.stock,
+    categoria_id: props.zapato.categoria_id
 });
 
 const submit = () => {

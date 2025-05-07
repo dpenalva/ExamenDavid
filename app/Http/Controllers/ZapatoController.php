@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Zapato;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +15,7 @@ class ZapatoController extends Controller
     public function index()
     {
         return Inertia::render('Zapatos/Index', [
-            'zapatos' => Zapato::all()
+            'zapatos' => Zapato::with('categoria')->get()
         ]);
     }
 
@@ -23,7 +24,9 @@ class ZapatoController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Zapatos/Create');
+        return Inertia::render('Zapatos/Create', [
+            'categorias' => Categoria::all()
+        ]);
     }
 
     /**
@@ -38,6 +41,7 @@ class ZapatoController extends Controller
             'color' => 'required|string|max:50',
             'precio' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'categoria_id' => 'required|exists:categorias,id',
         ]);
 
         Zapato::create($request->all());
@@ -50,6 +54,8 @@ class ZapatoController extends Controller
      */
     public function show(Zapato $zapato)
     {
+        $zapato->load('categoria');
+        
         return Inertia::render('Zapatos/Show', [
             'zapato' => $zapato
         ]);
@@ -61,7 +67,8 @@ class ZapatoController extends Controller
     public function edit(Zapato $zapato)
     {
         return Inertia::render('Zapatos/Edit', [
-            'zapato' => $zapato
+            'zapato' => $zapato,
+            'categorias' => Categoria::all()
         ]);
     }
 
@@ -77,6 +84,7 @@ class ZapatoController extends Controller
             'color' => 'required|string|max:50',
             'precio' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'categoria_id' => 'required|exists:categorias,id',
         ]);
 
         $zapato->update($request->all());
