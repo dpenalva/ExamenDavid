@@ -5,6 +5,8 @@ use App\Http\Controllers\ZapatoController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use App\Models\Zapato;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -13,14 +15,33 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('home');
 
+// Redirección desde dashboard a zapatos
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return redirect()->route('zapatos.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Rutas para el CRUD de zapatos
 Route::resource('zapatos', ZapatoController::class);
+
+// Ruta para buscar zapatos
+Route::get('/zapatos/buscar', function(Request $request) {
+    $query = $request->input('q');
+    
+    if (empty($query)) {
+        return Zapato::all();
+    }
+    
+    return Zapato::where('id', 'like', "%{$query}%")
+                ->orWhere('nombre', 'like', "%{$query}%")
+                ->orWhere('marca', 'like', "%{$query}%")
+                ->orWhere('talla', 'like', "%{$query}%")
+                ->orWhere('color', 'like', "%{$query}%")
+                ->orWhere('precio', 'like', "%{$query}%")
+                ->orWhere('stock', 'like', "%{$query}%")
+                ->get();
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
