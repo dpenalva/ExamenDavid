@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Zapato;
+use App\Models\Categoria;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -15,7 +16,8 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'zapatosDestacados' => Zapato::inRandomOrder()->limit(5)->get()
+        'zapatosDestacados' => Zapato::inRandomOrder()->limit(5)->get(),
+        'categorias' => Categoria::withCount('zapatos')->get()
     ]);
 })->name('home');
 

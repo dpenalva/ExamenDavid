@@ -12,11 +12,35 @@ class ZapatoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Zapato::with('categoria');
+        
+        // Filtro por categoría
+        if ($request->has('categoria') && $request->categoria != '') {
+            $query->where('categoria_id', $request->categoria);
+        }
+        
+        // Búsqueda por texto
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('marca', 'like', "%{$search}%")
+                  ->orWhere('talla', 'like', "%{$search}%")
+                  ->orWhere('color', 'like', "%{$search}%")
+                  ->orWhere('precio', 'like', "%{$search}%")
+                  ->orWhere('stock', 'like', "%{$search}%");
+            });
+        }
+        
+        // Paginar los resultados
+        $zapatos = $query->paginate(3);
+        
         return Inertia::render('Zapatos/Index', [
-            'zapatos' => Zapato::with('categoria')->get(),
-            'categorias' => Categoria::all()
+            'zapatos' => $zapatos,
+            'categorias' => Categoria::all(),
+            'filters' => $request->only(['search', 'categoria'])
         ]);
     }
 

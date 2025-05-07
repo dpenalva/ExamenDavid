@@ -2,9 +2,9 @@
 import { Head, Link } from '@inertiajs/vue3';
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     canLogin: {
         type: Boolean,
     },
@@ -23,11 +23,15 @@ defineProps({
         type: Array,
         default: () => [],
     },
+    categorias: {  // Nueva prop para recibir las categorías
+        type: Array,
+        default: () => [],
+    },
 });
 
 // Para el carrusel
 const indiceActual = ref(0);
-const totalSlides = ref(5); // Igual al número de imágenes estáticas que vamos a usar
+const totalSlides = computed(() => props.zapatosDestacados.length || 1);
 
 function siguienteSlide() {
     indiceActual.value = (indiceActual.value + 1) % totalSlides.value;
@@ -42,6 +46,13 @@ let intervalo;
 onMounted(() => {
     intervalo = setInterval(siguienteSlide, 5000); // Cambiar slide cada 5 segundos
 });
+
+// Obtener URL activa
+const seccionActiva = ref('zapatos'); // Por defecto, zapatos está activo
+
+function cambiarSeccion(seccion) {
+    seccionActiva.value = seccion;
+}
 
 function handleImageError() {
     document.getElementById('screenshot-container')?.classList.add('!hidden');
@@ -124,26 +135,100 @@ function handleImageError() {
                     </div>
                 </div>
                 
-                <div style="margin: 30px 0;">
-                    <!-- Opciones simples en forma de lista -->
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 10px;">
-                            <Link 
-                                :href="route('zapatos.index')" 
-                                style="display: block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; text-align: center;"
-                            >
-                                Ver Listado de Zapatos
-                            </Link>
-                        </li>
-                        <li style="margin-bottom: 10px;">
-                            <Link 
-                                :href="route('zapatos.create')" 
-                                style="display: block; padding: 8px 12px; background-color: #28a745; color: white; text-decoration: none; text-align: center;"
-                            >
-                                Añadir Nuevo Zapato
-                            </Link>
-                        </li>
-                    </ul>
+                <!-- Pestañas de navegación -->
+                <div style="margin: 30px 0 15px 0; display: flex; border-bottom: 1px solid #ddd;">
+                    <button 
+                        @click="cambiarSeccion('zapatos')"
+                        :style="{
+                            padding: '10px 15px',
+                            backgroundColor: seccionActiva === 'zapatos' ? '#007bff' : '#f8f9fa',
+                            color: seccionActiva === 'zapatos' ? 'white' : '#333',
+                            border: 'none',
+                            borderBottom: seccionActiva === 'zapatos' ? '3px solid #007bff' : 'none',
+                            cursor: 'pointer',
+                            flex: '1'
+                        }"
+                    >
+                        Zapatos
+                    </button>
+                    <button 
+                        @click="cambiarSeccion('categorias')"
+                        :style="{
+                            padding: '10px 15px',
+                            backgroundColor: seccionActiva === 'categorias' ? '#007bff' : '#f8f9fa',
+                            color: seccionActiva === 'categorias' ? 'white' : '#333',
+                            border: 'none',
+                            borderBottom: seccionActiva === 'categorias' ? '3px solid #007bff' : 'none',
+                            cursor: 'pointer',
+                            flex: '1'
+                        }"
+                    >
+                        Categorías
+                    </button>
+                </div>
+                
+                <div style="margin: 15px 0 30px 0;">
+                    <!-- Opciones de Zapatos -->
+                    <div v-if="seccionActiva === 'zapatos'">
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 10px;">
+                                <Link 
+                                    :href="route('zapatos.index')" 
+                                    style="display: block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; text-align: center;"
+                                >
+                                    Ver Listado de Zapatos
+                                </Link>
+                            </li>
+                            <li style="margin-bottom: 10px;">
+                                <Link 
+                                    :href="route('zapatos.create')" 
+                                    style="display: block; padding: 8px 12px; background-color: #28a745; color: white; text-decoration: none; text-align: center;"
+                                >
+                                    Añadir Nuevo Zapato
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Opciones de Categorías -->
+                    <div v-if="seccionActiva === 'categorias'">
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 10px;">
+                                <Link 
+                                    :href="route('categorias.index')" 
+                                    style="display: block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; text-align: center;"
+                                >
+                                    Ver Listado de Categorías
+                                </Link>
+                            </li>
+                            <li style="margin-bottom: 10px;">
+                                <Link 
+                                    :href="route('categorias.create')" 
+                                    style="display: block; padding: 8px 12px; background-color: #28a745; color: white; text-decoration: none; text-align: center;"
+                                >
+                                    Añadir Nueva Categoría
+                                </Link>
+                            </li>
+                        </ul>
+                        
+                        <!-- Lista de categorías disponibles -->
+                        <div style="margin-top: 20px; background-color: #f8f9fa; padding: 15px; border: 1px solid #ddd;">
+                            <h3 style="margin-top: 0; font-size: 18px; margin-bottom: 10px;">Categorías Disponibles:</h3>
+                            <ul style="padding-left: 20px;">
+                                <li v-for="categoria in categorias" :key="categoria.id" style="margin-bottom: 5px;">
+                                    <Link 
+                                        :href="route('zapatos.index', {categoria: categoria.id})" 
+                                        style="color: #007bff; text-decoration: none;"
+                                    >
+                                        {{ categoria.nombre }} ({{ categoria.zapatos_count || 0 }} zapatos)
+                                    </Link>
+                                </li>
+                                <li v-if="categorias.length === 0">
+                                    No hay categorías disponibles
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

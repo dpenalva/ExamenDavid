@@ -12,13 +12,13 @@
         <div style="width: 100%; margin-bottom: 10px; background-color: #f8f9fa; padding: 15px; border: 1px solid #ddd;">
             <div style="display: flex; gap: 10px; align-items: center;">
                 <label style="min-width: 120px; font-weight: bold;">Filtrar por Categoría:</label>
-                <select v-model="categoriaSeleccionada" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc;" @change="filtrarPorCategoria">
+                <select v-model="categoriaSeleccionada" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc;" @change="aplicarFiltros">
                     <option value="">Todas las categorías</option>
                     <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
                         {{ categoria.nombre }}
                     </option>
                 </select>
-                <button @click="limpiarFiltroCategoria" style="background-color: gray; color: white; padding: 8px 15px; border: none; cursor: pointer;">
+                <button @click="limpiarFiltros" style="background-color: gray; color: white; padding: 8px 15px; border: none; cursor: pointer;">
                     Limpiar Filtro
                 </button>
             </div>
@@ -30,12 +30,12 @@
                 <input 
                     type="text" 
                     v-model="busqueda" 
-                    placeholder="Buscar por ID, nombre, marca, talla, color, precio o stock..." 
+                    placeholder="Buscar por nombre, marca, talla, color, precio o stock..." 
                     style="flex-grow: 1; padding: 8px; border: 1px solid #ccc;"
-                    @input="buscarZapatos"
+                    @input="buscarConDelay"
                 />
                 <button 
-                    @click="limpiarBusqueda" 
+                    @click="limpiarFiltros" 
                     style="background-color: gray; color: white; padding: 8px 15px; border: none; cursor: pointer;"
                 >
                     Limpiar
@@ -58,7 +58,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="zapato in zapatosFiltrados" :key="zapato.id" style="border: 1px solid #ddd;">
+                <tr v-for="zapato in zapatos.data" :key="zapato.id" style="border: 1px solid #ddd;">
                     <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.id }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.nombre }}</td>
                     <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.marca }}</td>
@@ -79,11 +79,35 @@
                         </button>
                     </td>
                 </tr>
-                <tr v-if="zapatosFiltrados.length === 0">
+                <tr v-if="zapatos.data.length === 0">
                     <td colspan="9" style="border: 1px solid #ddd; padding: 8px; text-align: center;">No se encontraron zapatos</td>
                 </tr>
             </tbody>
         </table>
+        
+        <!-- Paginación -->
+        <div v-if="zapatos.links && zapatos.links.length > 3" style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: center; gap: 5px;">
+                <Link 
+                    v-for="(link, i) in zapatos.links" 
+                    :key="i"
+                    :href="link.url ? link.url : '#'"
+                    :style="{
+                        padding: '5px 10px',
+                        border: '1px solid #ddd',
+                        backgroundColor: link.active ? '#007bff' : 'white',
+                        color: link.active ? 'white' : '#007bff',
+                        textDecoration: 'none',
+                        cursor: link.url ? 'pointer' : 'default',
+                        opacity: link.url ? '1' : '0.5'
+                    }"
+                    v-html="link.label"
+                ></Link>
+            </div>
+            <p style="text-align: center; margin-top: 10px; font-size: 14px; color: #666;">
+                Mostrando {{ zapatos.from }} a {{ zapatos.to }} de {{ zapatos.total }} zapatos
+            </p>
+        </div>
         
         <div style="text-align: center; margin-top: 20px;">
             <Link :href="route('zapatos.create')" style="background-color: green; color: white; padding: 10px 15px; text-decoration: none; display: inline-block;">
@@ -97,102 +121,67 @@
 import { Head, Link } from '@inertiajs/vue3';
 import ZapatosLayout from '@/Layouts/ZapatosLayout.vue';
 import { router } from '@inertiajs/vue3';
-import { ref, computed, onMounted, watch } from 'vue';
-import axios from 'axios';
-import { debounce } from 'lodash';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps({
-    zapatos: Array,
-    categorias: Array
+    zapatos: Object,
+    categorias: Array,
+    filters: Object
 });
 
 // Estado para el buscador y filtros
 const busqueda = ref('');
-const todosLosZapatos = ref([]);
-const zapatosFiltrados = ref([]);
 const categoriaSeleccionada = ref('');
+let timeoutId = null;
 
-// Inicializar los zapatos
+// Inicializar los filtros desde props si existen
 onMounted(() => {
-    todosLosZapatos.value = [...props.zapatos];
-    zapatosFiltrados.value = [...props.zapatos];
+    if (props.filters) {
+        busqueda.value = props.filters.search || '';
+        categoriaSeleccionada.value = props.filters.categoria || '';
+    }
 });
 
-// Filtrar por categoría
-const filtrarPorCategoria = () => {
-    if (!categoriaSeleccionada.value) {
-        // Si no hay categoría seleccionada, mostrar todos los zapatos
-        zapatosFiltrados.value = todosLosZapatos.value;
-    } else {
-        // Filtrar por la categoría seleccionada
-        zapatosFiltrados.value = todosLosZapatos.value.filter(zapato => 
-            zapato.categoria_id === parseInt(categoriaSeleccionada.value)
-        );
-    }
-    
-    // Si hay una búsqueda activa, aplicarla a los resultados ya filtrados por categoría
-    if (busqueda.value.trim() !== '') {
-        buscarLocalmente();
-    }
-};
-
-// Limpiar el filtro de categoría
-const limpiarFiltroCategoria = () => {
-    categoriaSeleccionada.value = '';
-    zapatosFiltrados.value = [...todosLosZapatos.value];
-    
-    // Si hay una búsqueda activa, aplicarla a todos los zapatos
-    if (busqueda.value.trim() !== '') {
-        buscarLocalmente();
-    }
-};
-
-// Debounce para la función de búsqueda para evitar demasiadas llamadas
-const buscarZapatos = debounce(() => {
-    if (busqueda.value.trim() === '') {
-        // Si no hay búsqueda, mostrar los zapatos según el filtro de categoría
-        filtrarPorCategoria();
-        return;
-    }
-    
-    buscarLocalmente();
-}, 300);
-
-// Método para buscar localmente
-const buscarLocalmente = () => {
-    const terminoBusqueda = busqueda.value.toLowerCase().trim();
-    
-    // Filtrar primero por categoría si hay una seleccionada
-    let zapatosBase = todosLosZapatos.value;
-    if (categoriaSeleccionada.value) {
-        zapatosBase = zapatosBase.filter(zapato => 
-            zapato.categoria_id === parseInt(categoriaSeleccionada.value)
-        );
-    }
-    
-    // Luego aplicar la búsqueda textual
-    zapatosFiltrados.value = zapatosBase.filter(zapato => 
-        zapato.id.toString().includes(terminoBusqueda) ||
-        zapato.nombre.toLowerCase().includes(terminoBusqueda) ||
-        zapato.marca.toLowerCase().includes(terminoBusqueda) ||
-        (zapato.categoria && zapato.categoria.nombre.toLowerCase().includes(terminoBusqueda)) ||
-        zapato.talla.toString().toLowerCase().includes(terminoBusqueda) ||
-        zapato.color.toLowerCase().includes(terminoBusqueda) ||
-        zapato.precio.toString().includes(terminoBusqueda) ||
-        zapato.stock.toString().includes(terminoBusqueda)
+// Aplicar filtros
+function aplicarFiltros() {
+    router.get(
+        route('zapatos.index'),
+        {
+            search: busqueda.value,
+            categoria: categoriaSeleccionada.value
+        },
+        {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['zapatos']
+        }
     );
-};
+}
 
-// Limpiar la búsqueda
-const limpiarBusqueda = () => {
+// Buscar con delay para evitar muchas peticiones
+function buscarConDelay() {
+    // Cancelar el timeout anterior si existe
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+    }
+    
+    // Crear un nuevo timeout de 300ms
+    timeoutId = setTimeout(() => {
+        aplicarFiltros();
+    }, 300);
+}
+
+// Limpiar filtros
+function limpiarFiltros() {
     busqueda.value = '';
-    // Mantener el filtro por categoría si está activo
-    filtrarPorCategoria();
-};
+    categoriaSeleccionada.value = '';
+    router.get(route('zapatos.index'));
+}
 
-const eliminarZapato = (id) => {
+// Eliminar zapato
+function eliminarZapato(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este zapato?')) {
         router.delete(route('zapatos.destroy', id));
     }
-};
+}
 </script> 
