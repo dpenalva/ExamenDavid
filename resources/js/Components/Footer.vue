@@ -1,9 +1,34 @@
 <template>
-    <footer style="background-color: #343a40; color: white; padding: 16px; margin-top: auto;">
-        <div style="width: 90%; max-width: 1200px; margin: 0 auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <p style="margin: 0;">&copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.</p>
+    <footer class="bg-gray-800 text-white py-6 mt-auto" role="contentinfo">
+        <div class="w-11/12 max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-center md:text-left text-gray-300">
+                        &copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 text-center md:text-right">
+                    <a 
+                        href="#" 
+                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+                        aria-label="Política de privacidad"
+                    >
+                        Política de privacidad
+                    </a>
+                    <a 
+                        href="#" 
+                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+                        aria-label="Términos y condiciones"
+                    >
+                        Términos y condiciones
+                    </a>
+                    <a 
+                        href="#" 
+                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+                        aria-label="Contacto"
+                    >
+                        Contacto
+                    </a>
                 </div>
             </div>
         </div>

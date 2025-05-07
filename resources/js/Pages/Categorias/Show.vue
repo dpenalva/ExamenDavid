@@ -58,7 +58,7 @@
                         <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.precio }} €</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.stock }}</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">
-                            <Link :href="route('zapatos.show', zapato.id)" style="background-color: blue; color: white; padding: 5px 10px; text-decoration: none; display: inline-block;">
+                            <Link :href="route('zapatos.show', zapato.id)" style="background-color: #2b72e6; color: white; padding: 5px 10px; text-decoration: none; display: inline-block;">
                                 Ver
                             </Link>
                         </td>
@@ -71,10 +71,10 @@
             </p>
             
             <div style="text-align: center; margin-top: 20px;">
-                <Link :href="route('categorias.index')" style="background-color: gray; color: white; padding: 10px 15px; text-decoration: none; display: inline-block; margin-right: 10px;">
+                <Link :href="route('categorias.index')" style="background-color: #767676; color: white; padding: 10px 15px; text-decoration: none; display: inline-block; margin-right: 10px;">
                     Volver
                 </Link>
-                <Link :href="route('categorias.edit', categoria.id)" style="background-color: orange; color: white; padding: 10px 15px; text-decoration: none; display: inline-block;">
+                <Link :href="route('categorias.edit', categoria.id)" style="background-color: #c85200; color: white; padding: 10px 15px; text-decoration: none; display: inline-block;">
                     Editar
                 </Link>
             </div>

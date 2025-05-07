@@ -20,9 +20,9 @@
                             <Link :href="route('profile.edit')" style="display: block; padding: 10px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">
                                 Perfil
                             </Link>
-                            <Link :href="route('logout')" method="post" as="button" style="width: 100%; text-align: left; background: none; border: none; padding: 10px 15px; color: #333; cursor: pointer;">
+                            <button @click="logout" style="width: 100%; text-align: left; background: none; border: none; padding: 10px 15px; color: #333; cursor: pointer;">
                                 Cerrar Sesión
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </template>
@@ -32,7 +32,7 @@
                     <Link v-if="route().has('login')" :href="route('login')" style="color: white; text-decoration: none; padding: 5px 10px; transition: opacity 0.3s; border: 1px solid white; border-radius: 4px;">
                         Iniciar Sesión
                     </Link>
-                    <Link v-if="route().has('register')" :href="route('register')" style="color: white; text-decoration: none; padding: 5px 10px; transition: opacity 0.3s; background-color: #28a745; border-radius: 4px;">
+                    <Link v-if="route().has('register')" :href="route('register')" style="color: white; text-decoration: none; padding: 5px 10px; transition: opacity 0.3s; background-color: #008933; border-radius: 4px;">
                         Registrarse
                     </Link>
                 </template>
@@ -43,6 +43,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const showUserMenu = ref(false);
@@ -52,6 +53,11 @@ function handleClickOutside(event) {
     if (showUserMenu.value && !event.target.closest('button') && !event.target.closest('div[style*="position: relative"]')) {
         showUserMenu.value = false;
     }
+}
+
+// Función para cerrar sesión
+function logout() {
+    router.post(route('logout'));
 }
 
 // Agregar y eliminar el evento de clic global

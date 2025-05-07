@@ -60,10 +60,10 @@
             </div>
             
             <div style="text-align: center; margin-top: 20px;">
-                <Link :href="route('zapatos.index')" style="background-color: #6c757d; color: white; padding: 10px 15px; text-decoration: none; display: inline-block; margin-right: 10px;">
+                <Link :href="route('zapatos.index')" style="background-color: #767676; color: white; padding: 10px 15px; text-decoration: none; display: inline-block; margin-right: 10px;">
                     Cancelar
                 </Link>
-                <button type="submit" style="background-color: #ffc107; color: black; padding: 10px 15px; border: none; cursor: pointer;">
+                <button type="submit" style="background-color: #c85200; color: white; padding: 10px 15px; border: none; cursor: pointer;">
                     Actualizar
                 </button>
             </div>

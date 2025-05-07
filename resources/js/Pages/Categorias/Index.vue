@@ -2,7 +2,7 @@
     <Head title="Listado de Categorías" />
     
     <ZapatosLayout>
-        <h1 style="text-align: center; color: blue; font-size: 24px; margin-bottom: 20px;">Lista de Categorías</h1>
+        <h1 style="text-align: center; color: #2b72e6; margin-bottom: 15px; font-size: 32px;">Lista de Categorías</h1>
         
         <div v-if="$page.props.flash && $page.props.flash.success" style="background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; margin-bottom: 15px;">
             {{ $page.props.flash.success }}
@@ -12,42 +12,62 @@
             {{ $page.props.flash.error }}
         </div>
         
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <thead>
-                <tr style="background-color: #f2f2f2;">
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nombre</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Descripción</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Zapatos</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="categoria in categorias" :key="categoria.id" style="border: 1px solid #ddd;">
-                    <td style="border: 1px solid #ddd; padding: 8px;">{{ categoria.id }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">{{ categoria.nombre }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">{{ categoria.descripcion || 'Sin descripción' }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">{{ categoria.zapatos_count }}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">
-                        <Link :href="route('categorias.show', categoria.id)" style="background-color: blue; color: white; padding: 5px 10px; text-decoration: none; margin-right: 5px; display: inline-block;">
-                            Ver
-                        </Link>
-                        <Link :href="route('categorias.edit', categoria.id)" style="background-color: orange; color: white; padding: 5px 10px; text-decoration: none; margin-right: 5px; display: inline-block;">
-                            Editar
-                        </Link>
-                        <button @click="eliminarCategoria(categoria)" style="background-color: red; color: white; padding: 5px 10px; border: none; cursor: pointer;">
-                            Eliminar
-                        </button>
-                    </td>
-                </tr>
-                <tr v-if="categorias.length === 0">
-                    <td colspan="5" style="border: 1px solid #ddd; padding: 8px; text-align: center;">No se encontraron categorías</td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Tabla Responsiva -->
+        <div style="overflow-x: auto; margin-bottom: 20px; border: 1px solid #ddd;">
+            <table style="width: 100%; border-collapse: collapse;" aria-label="Listado de categorías">
+                <caption style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">Listado de categorías disponibles</caption>
+                <thead style="background-color: white;">
+                    <tr>
+                        <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: black;">ID</th>
+                        <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: black;">Nombre</th>
+                        <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: black;">Descripción</th>
+                        <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: black;">Zapatos</th>
+                        <th scope="col" style="border: 1px solid #ddd; padding: 8px; text-align: center; color: black;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(categoria, index) in categorias" :key="categoria.id" style="border: 1px solid #ddd;" :style="index % 2 === 0 ? 'background-color: #f2f2f2;' : 'background-color: white;'">
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{ categoria.id }}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{ categoria.nombre }}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">{{ categoria.descripcion || 'Sin descripción' }}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{ categoria.zapatos_count }}</td>
+                        <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                            <Link 
+                                :href="route('categorias.show', categoria.id)" 
+                                style="background-color: #2b72e6; color: white; padding: 5px; text-decoration: none; margin-right: 3px; display: inline-block;"
+                                aria-label="Ver detalles de la categoría"
+                            >
+                                Ver
+                            </Link>
+                            <Link 
+                                :href="route('categorias.edit', categoria.id)" 
+                                style="background-color: #c85200; color: white; padding: 5px; text-decoration: none; margin-right: 3px; display: inline-block;"
+                                aria-label="Editar categoría"
+                            >
+                                Editar
+                            </Link>
+                            <button 
+                                @click="eliminarCategoria(categoria)" 
+                                style="background-color: #e00; color: white; padding: 5px; border: none; cursor: pointer;"
+                                aria-label="Eliminar categoría"
+                            >
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr v-if="categorias.length === 0">
+                        <td colspan="5" style="border: 1px solid #ddd; padding: 15px; text-align: center; color: #666;">No se encontraron categorías</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
         <div style="text-align: center; margin-top: 20px;">
-            <Link :href="route('categorias.create')" style="background-color: green; color: white; padding: 10px 15px; text-decoration: none; display: inline-block;">
+            <Link 
+                :href="route('categorias.create')" 
+                style="background-color: #008933; color: white; padding: 10px 15px; text-decoration: none; display: inline-block;"
+                aria-label="Añadir nueva categoría"
+            >
                 Añadir Nueva Categoría
             </Link>
         </div>

@@ -2,28 +2,11 @@
 import { Head, Link } from '@inertiajs/vue3';
 import Navbar from '@/Components/Navbar.vue';
 import Footer from '@/Components/Footer.vue';
-import { ref, onMounted, computed } from 'vue';
+import { router } from '@inertiajs/vue3';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
-    canLogin: {
-        type: Boolean,
-    },
-    canRegister: {
-        type: Boolean,
-    },
-    laravelVersion: {
-        type: String,
-        required: true,
-    },
-    phpVersion: {
-        type: String,
-        required: true,
-    },
     zapatosDestacados: {
-        type: Array,
-        default: () => [],
-    },
-    categorias: {  // Nueva prop para recibir las categorías
         type: Array,
         default: () => [],
     },
@@ -45,21 +28,42 @@ function anteriorSlide() {
 let intervalo;
 onMounted(() => {
     intervalo = setInterval(siguienteSlide, 5000); // Cambiar slide cada 5 segundos
+    
+    // Añadir manejadores de eventos para teclado (accesibilidad)
+    document.addEventListener('keydown', manejarTeclado);
 });
 
-// Obtener URL activa
-const seccionActiva = ref('zapatos'); // Por defecto, zapatos está activo
+onBeforeUnmount(() => {
+    // Limpiar intervalo y eventos cuando el componente se desmonta
+    clearInterval(intervalo);
+    document.removeEventListener('keydown', manejarTeclado);
+});
 
-function cambiarSeccion(seccion) {
-    seccionActiva.value = seccion;
+// Manejar eventos de teclado para accesibilidad
+function manejarTeclado(e) {
+    // Navegación del carrusel con flechas
+    if (e.key === 'ArrowLeft') {
+        anteriorSlide();
+    } else if (e.key === 'ArrowRight') {
+        siguienteSlide();
+    }
 }
 
-function handleImageError() {
-    document.getElementById('screenshot-container')?.classList.add('!hidden');
-    document.getElementById('docs-card')?.classList.add('!row-span-1');
-    document.getElementById('docs-card-content')?.classList.add('!flex-row');
-    document.getElementById('background')?.classList.add('!hidden');
-}
+const irAListadoZapatos = () => {
+    router.visit(route('zapatos.index'));
+};
+
+const irACrearZapato = () => {
+    router.visit(route('zapatos.create'));
+};
+
+const irAListadoCategorias = () => {
+    router.visit(route('categorias.index'));
+};
+
+const irACrearCategoria = () => {
+    router.visit(route('categorias.create'));
+};
 </script>
 
 <template>
@@ -68,167 +72,84 @@ function handleImageError() {
     <div style="min-height: 100vh; display: flex; flex-direction: column;">
         <Navbar />
         
-        <main style="flex-grow: 1; background-color: #f8f9fa; padding: 40px 20px;">
-            <div style="max-width: 800px; margin: 0 auto; background-color: white; padding: 20px; border: 1px solid #ddd;">
-                <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px; color: #333;">Gestión de Zapatos</h1>
+        <main style="flex-grow: 1;">
+            <!-- Carrusel de imágenes -->
+            <div style="position: relative; height: 300px; overflow: hidden; border-bottom: 1px solid #0066cc;">
+                <!-- Alerta para lectores de pantalla solo para el carrusel -->
+                <div class="sr-only" aria-live="polite">
+                    <p v-if="zapatosDestacados.length > 0">
+                        Mostrando zapato {{ indiceActual + 1 }} de {{ totalSlides }}: 
+                        {{ zapatosDestacados[indiceActual]?.nombre }} - 
+                        {{ zapatosDestacados[indiceActual]?.marca }} - 
+                        Precio: {{ zapatosDestacados[indiceActual]?.precio }}€
+                    </p>
+                </div>
                 
-                <!-- Carrusel de imágenes -->
-                <div style="position: relative; margin: 30px 0; overflow: hidden; border: 1px solid #ddd; height: 300px;">
-                    <!-- Contenedor del carrusel -->
-                    <div 
-                        style="display: flex; transition: transform 0.5s ease;" 
-                        :style="{ transform: `translateX(-${indiceActual * 100}%)` }"
-                    >
-                        <!-- Slides del carrusel con imágenes estáticas y datos de la BD -->
-                        <div v-for="(zapato, index) in zapatosDestacados" :key="index" style="min-width: 100%; height: 300px; position: relative;">
-                            <!-- Imágenes estáticas de ejemplo -->
-                            <img 
-                                :src="`https://placehold.co/600x300/007bff/FFFFFF?text=Zapato+${index + 1}`" 
-                                style="width: 100%; height: 100%; object-fit: cover;"
-                                alt="Imagen de zapato"
-                            />
-                            <!-- Información del zapato desde la base de datos -->
-                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 15px;">
-                                <h3 style="margin: 0 0 5px 0; font-size: 18px;">{{ zapato.nombre }}</h3>
-                                <p style="margin: 0 0 5px 0;">
-                                    <span style="font-weight: bold;">Marca:</span> {{ zapato.marca }} | 
-                                    <span style="font-weight: bold;">Color:</span> {{ zapato.color }} | 
-                                    <span style="font-weight: bold;">Talla:</span> {{ zapato.talla }}
-                                </p>
-                                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #ffc107;">
-                                    Precio: {{ zapato.precio }}€
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Controles del carrusel -->
-                    <button 
-                        @click="anteriorSlide" 
-                        style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;"
-                    >
-                        &lt;
-                    </button>
-                    <button 
-                        @click="siguienteSlide" 
-                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer;"
-                    >
-                        &gt;
-                    </button>
-                    
-                    <!-- Indicadores del carrusel -->
-                    <div style="position: absolute; bottom: 10px; left: 0; right: 0; display: flex; justify-content: center; z-index: 10;">
-                        <span 
-                            v-for="(_, index) in zapatosDestacados" 
+                <!-- Contenedor del carrusel -->
+                <div 
+                    style="display: flex; height: 100%;" 
+                    :style="{ transform: `translateX(-${indiceActual * 100}%)` }"
+                >
+                    <!-- Slides del carrusel con imágenes estáticas y datos de la BD -->
+                    <div v-for="(zapato, index) in zapatosDestacados" 
                             :key="index" 
-                            @click="indiceActual = index"
-                            :style="{
-                                width: '12px',
-                                height: '12px',
-                                backgroundColor: index === indiceActual ? '#007bff' : '#ddd',
-                                borderRadius: '50%',
-                                margin: '0 5px',
-                                cursor: 'pointer',
-                                display: 'inline-block'
-                            }"
-                        ></span>
-                    </div>
-                </div>
-                
-                <!-- Pestañas de navegación -->
-                <div style="margin: 30px 0 15px 0; display: flex; border-bottom: 1px solid #ddd;">
-                    <button 
-                        @click="cambiarSeccion('zapatos')"
-                        :style="{
-                            padding: '10px 15px',
-                            backgroundColor: seccionActiva === 'zapatos' ? '#007bff' : '#f8f9fa',
-                            color: seccionActiva === 'zapatos' ? 'white' : '#333',
-                            border: 'none',
-                            borderBottom: seccionActiva === 'zapatos' ? '3px solid #007bff' : 'none',
-                            cursor: 'pointer',
-                            flex: '1'
-                        }"
+                            style="min-width: 100%; height: 100%; position: relative;"
                     >
-                        Zapatos
-                    </button>
-                    <button 
-                        @click="cambiarSeccion('categorias')"
-                        :style="{
-                            padding: '10px 15px',
-                            backgroundColor: seccionActiva === 'categorias' ? '#007bff' : '#f8f9fa',
-                            color: seccionActiva === 'categorias' ? 'white' : '#333',
-                            border: 'none',
-                            borderBottom: seccionActiva === 'categorias' ? '3px solid #007bff' : 'none',
-                            cursor: 'pointer',
-                            flex: '1'
-                        }"
-                    >
-                        Categorías
-                    </button>
-                </div>
-                
-                <div style="margin: 15px 0 30px 0;">
-                    <!-- Opciones de Zapatos -->
-                    <div v-if="seccionActiva === 'zapatos'">
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="margin-bottom: 10px;">
-                                <Link 
-                                    :href="route('zapatos.index')" 
-                                    style="display: block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; text-align: center;"
-                                >
-                                    Ver Listado de Zapatos
-                                </Link>
-                            </li>
-                            <li style="margin-bottom: 10px;">
-                                <Link 
-                                    :href="route('zapatos.create')" 
-                                    style="display: block; padding: 8px 12px; background-color: #28a745; color: white; text-decoration: none; text-align: center;"
-                                >
-                                    Añadir Nuevo Zapato
-                                </Link>
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Opciones de Categorías -->
-                    <div v-if="seccionActiva === 'categorias'">
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="margin-bottom: 10px;">
-                                <Link 
-                                    :href="route('categorias.index')" 
-                                    style="display: block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; text-align: center;"
-                                >
-                                    Ver Listado de Categorías
-                                </Link>
-                            </li>
-                            <li style="margin-bottom: 10px;">
-                                <Link 
-                                    :href="route('categorias.create')" 
-                                    style="display: block; padding: 8px 12px; background-color: #28a745; color: white; text-decoration: none; text-align: center;"
-                                >
-                                    Añadir Nueva Categoría
-                                </Link>
-                            </li>
-                        </ul>
-                        
-                        <!-- Lista de categorías disponibles -->
-                        <div style="margin-top: 20px; background-color: #f8f9fa; padding: 15px; border: 1px solid #ddd;">
-                            <h3 style="margin-top: 0; font-size: 18px; margin-bottom: 10px;">Categorías Disponibles:</h3>
-                            <ul style="padding-left: 20px;">
-                                <li v-for="categoria in categorias" :key="categoria.id" style="margin-bottom: 5px;">
-                                    <Link 
-                                        :href="route('zapatos.index', {categoria: categoria.id})" 
-                                        style="color: #007bff; text-decoration: none;"
-                                    >
-                                        {{ categoria.nombre }} ({{ categoria.zapatos_count || 0 }} zapatos)
-                                    </Link>
-                                </li>
-                                <li v-if="categorias.length === 0">
-                                    No hay categorías disponibles
-                                </li>
-                            </ul>
+                        <!-- Imágenes estáticas de ejemplo -->
+                        <img 
+                            :src="`https://placehold.co/600x300/0066cc/FFFFFF?text=Zapato+${index + 1}`" 
+                            style="width: 100%; height: 100%; object-fit: cover;"
+                            :alt="`Imagen de zapato`"
+                        />
+                        <!-- Información del zapato desde la base de datos -->
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: white; color: #0066cc; padding: 10px; border-top: 1px solid #0066cc;">
+                            <h3 style="font-size: 18px; margin: 0 0 5px 0;">{{ zapato.nombre }}</h3>
+                            <p style="margin: 0;">
+                                Marca: {{ zapato.marca }} | 
+                                Precio: {{ zapato.precio }}€
+                            </p>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Controles del carrusel -->
+                <button 
+                    @click="anteriorSlide" 
+                    style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); background-color: #0066cc; color: white; border: 1px solid white; width: 30px; height: 30px; cursor: pointer;"
+                >
+                    &lt;
+                </button>
+                <button 
+                    @click="siguienteSlide" 
+                    style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background-color: #0066cc; color: white; border: 1px solid white; width: 30px; height: 30px; cursor: pointer;"
+                >
+                    &gt;
+                </button>
+            </div>
+            
+            <!-- Sección de Zapatos -->
+            <div style="background-color: #d1d1d1; text-align: center; color: black; padding: 20px;">
+                Zapatos:
+                <div style="margin-top: 10px;">
+                    <button @click="irACrearZapato" style="background-color: white; color: black; font-weight: bold; padding: 8px 15px; border: 1px solid black; margin-right: 10px; cursor: pointer;">
+                        Crear Zapato
+                    </button>
+                    <button @click="irAListadoZapatos" style="background-color: white; color: black; font-weight: bold; padding: 8px 15px; border: 1px solid black; cursor: pointer;">
+                        Ver Lista Zapatos
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sección de Categorías -->
+            <div style="background-color: #e5e5e5; text-align: center; color: black; padding: 20px;">
+                Categorías:
+                <div style="margin-top: 10px;">
+                    <button @click="irACrearCategoria" style="background-color: white; color: black; font-weight: bold; padding: 8px 15px; border: 1px solid black; margin-right: 10px; cursor: pointer;">
+                        Crear Categoría
+                    </button>
+                    <button @click="irAListadoCategorias" style="background-color: white; color: black; font-weight: bold; padding: 8px 15px; border: 1px solid black; cursor: pointer;">
+                        Ver Lista Categorías
+                    </button>
                 </div>
             </div>
         </main>
@@ -236,3 +157,15 @@ function handleImageError() {
         <Footer />
     </div>
 </template>
+
+<style>
+/* Ajustes de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
