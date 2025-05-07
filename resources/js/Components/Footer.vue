@@ -1,14 +1,9 @@
 <template>
-    <footer class="bg-gray-800 text-white p-4 mt-auto">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center">
+    <footer style="background-color: #343a40; color: white; padding: 16px; margin-top: auto;">
+        <div style="width: 90%; max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p>&copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.</p>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="hover:text-gray-300">Términos</a>
-                    <a href="#" class="hover:text-gray-300">Privacidad</a>
-                    <a href="#" class="hover:text-gray-300">Contacto</a>
+                    <p style="margin: 0;">&copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.</p>
                 </div>
             </div>
         </div>

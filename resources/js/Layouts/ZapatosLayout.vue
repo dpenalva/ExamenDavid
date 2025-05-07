@@ -1,8 +1,8 @@
 <template>
-    <div class="min-h-screen flex flex-col">
+    <div style="min-height: 100vh; display: flex; flex-direction: column;">
         <Navbar />
         
-        <main class="flex-grow container mx-auto p-4">
+        <main style="flex-grow: 1; width: 90%; max-width: 1200px; margin: 0 auto; padding: 16px;">
             <slot />
         </main>
         
