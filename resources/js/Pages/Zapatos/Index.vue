@@ -8,6 +8,11 @@
             {{ $page.props.flash.success }}
         </div>
         
+        <!-- Mensaje de error de Axios -->
+        <div v-if="resultadosBusqueda.error" style="background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; margin-bottom: 15px;">
+            {{ resultadosBusqueda.error }}
+        </div>
+        
         <!-- Filtro por Categoría -->
         <div style="width: 100%; margin-bottom: 12px; padding: 10px;">
             <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
@@ -16,7 +21,7 @@
                     id="categoria-select"
                     v-model="categoriaSeleccionada" 
                     style="flex-grow: 1; padding: 8px; border: 1px solid #767676;" 
-                    @change="aplicarFiltros"
+                    @change="buscarZapatos"
                     aria-label="Filtrar zapatos por categoría"
                 >
                     <option value="">Todas las categorías</option>
@@ -40,6 +45,9 @@
                     @input="buscarConDelay"
                     aria-label="Buscar zapatos por nombre, marca, talla, color, precio o stock"
                 />
+                
+                <!-- Indicador de carga -->
+                <span v-if="resultadosBusqueda.cargando" style="color: #666; margin-left: 10px;">Buscando...</span>
             </div>
         </div>
         
@@ -61,7 +69,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(zapato, index) in zapatos.data" :key="zapato.id" style="border: 1px solid #ddd;" :style="index % 2 === 0 ? 'background-color: #f2f2f2;' : 'background-color: white;'">
+                    <tr v-for="(zapato, index) in obtenerZapatosVisible()" :key="zapato.id" style="border: 1px solid #ddd;" :style="index % 2 === 0 ? 'background-color: #f2f2f2;' : 'background-color: white;'">
                         <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">{{ zapato.id }}</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.nombre }}</td>
                         <td style="border: 1px solid #ddd; padding: 8px;">{{ zapato.marca }}</td>
@@ -97,15 +105,20 @@
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="zapatos.data.length === 0">
+                    <tr v-if="(resultadosBusqueda.mostrarResultados ? resultadosBusqueda.data.length : zapatos.data.length) === 0">
                         <td colspan="9" style="border: 1px solid #ddd; padding: 15px; text-align: center; color: #666;">No se encontraron zapatos</td>
                     </tr>
                 </tbody>
             </table>
         </div>
         
-        <!-- Paginación Accesible -->
-        <nav v-if="zapatos.links && zapatos.links.length > 3" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;" aria-label="Paginación de zapatos">
+        <!-- Indicador de resultados -->
+        <div v-if="resultadosBusqueda.mostrarResultados" style="text-align: center; margin-bottom: 15px; font-size: 14px; color: #666;">
+            Se encontraron {{ resultadosBusqueda.total }} resultados
+        </div>
+        
+        <!-- Paginación Accesible (solo visible cuando no se están mostrando resultados de búsqueda) -->
+        <nav v-if="!resultadosBusqueda.mostrarResultados && zapatos.links && zapatos.links.length > 3" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;" aria-label="Paginación de zapatos">
             <div style="display: flex; justify-content: center; margin: 10px 0;">
                 <Link 
                     v-for="(link, i) in zapatos.links" 
@@ -148,7 +161,8 @@
 import { Head, Link } from '@inertiajs/vue3';
 import ZapatosLayout from '@/Layouts/ZapatosLayout.vue';
 import { router } from '@inertiajs/vue3';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, reactive } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     zapatos: Object,
@@ -161,12 +175,25 @@ const busqueda = ref('');
 const categoriaSeleccionada = ref('');
 let timeoutId = null;
 
+// Estado para almacenar los resultados de la búsqueda con Axios
+const resultadosBusqueda = reactive({
+    data: [],
+    mostrarResultados: false,
+    cargando: false,
+    error: null,
+    total: 0
+});
+
 // Inicializar los filtros desde props si existen
 onMounted(() => {
     if (props.filters) {
         busqueda.value = props.filters.search || '';
         categoriaSeleccionada.value = props.filters.categoria || '';
     }
+    
+    // Cargar datos iniciales
+    resultadosBusqueda.data = props.zapatos.data || [];
+    resultadosBusqueda.total = props.zapatos.total || 0;
     
     // Añadir manejadores de eventos para accesibilidad por teclado
     document.addEventListener('keydown', manejarTeclas);
@@ -184,20 +211,30 @@ function manejarTeclas(e) {
     }
 }
 
-// Aplicar filtros
-function aplicarFiltros() {
-    router.get(
-        route('zapatos.index'),
-        {
-            search: busqueda.value,
-            categoria: categoriaSeleccionada.value
-        },
-        {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['zapatos']
-        }
-    );
+// Implementación completa con Axios para búsqueda
+async function buscarZapatos() {
+    resultadosBusqueda.cargando = true;
+    resultadosBusqueda.error = null;
+    
+    try {
+        const response = await axios.get(route('zapatos.buscar'), {
+            params: {
+                q: busqueda.value,
+                categoria: categoriaSeleccionada.value
+            }
+        });
+        
+        // Actualizar resultados
+        resultadosBusqueda.data = response.data;
+        resultadosBusqueda.total = response.data.length;
+        resultadosBusqueda.mostrarResultados = true;
+        
+    } catch (error) {
+        console.error('Error al buscar zapatos:', error);
+        resultadosBusqueda.error = 'Error al buscar zapatos. Intente nuevamente.';
+    } finally {
+        resultadosBusqueda.cargando = false;
+    }
 }
 
 // Buscar con delay para evitar muchas peticiones
@@ -209,7 +246,7 @@ function buscarConDelay() {
     
     // Crear un nuevo timeout de 300ms
     timeoutId = setTimeout(() => {
-        aplicarFiltros();
+        buscarZapatos();
     }, 300);
 }
 
@@ -217,15 +254,31 @@ function buscarConDelay() {
 function limpiarFiltros() {
     busqueda.value = '';
     categoriaSeleccionada.value = '';
-    router.get(route('zapatos.index'));
+    buscarZapatos();
 }
 
-// Eliminar zapato
+// Eliminar zapato con Axios
 function eliminarZapato(id) {
     if (confirm('¿Estás seguro de que deseas eliminar este zapato?')) {
-        router.delete(route('zapatos.destroy', id));
+        axios.delete(route('zapatos.destroy', id))
+            .then(() => {
+                // Mostrar mensaje de éxito
+                alert('Zapato eliminado con éxito');
+                
+                // Actualizar la lista de zapatos
+                buscarZapatos();
+            })
+            .catch(error => {
+                console.error('Error al eliminar el zapato:', error);
+                alert('Ocurrió un error al eliminar el zapato');
+            });
     }
 }
+
+// Vista de resultados
+const obtenerZapatosVisible = () => {
+    return resultadosBusqueda.mostrarResultados ? resultadosBusqueda.data : props.zapatos.data;
+};
 </script>
 
 <style>

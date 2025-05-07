@@ -86,11 +86,20 @@ class CategoriaController extends Controller
     {
         // Verificar si hay zapatos asociados a esta categoría
         if ($categoria->zapatos()->count() > 0) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['error' => 'No se puede eliminar esta categoría porque tiene zapatos asociados.'], 422);
+            }
             return redirect()->route('categorias.index')->with('error', 'No se puede eliminar esta categoría porque tiene zapatos asociados.');
         }
         
         $categoria->delete();
 
+        // Para peticiones AJAX (Axios)
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => 'Categoría eliminada exitosamente'], 200);
+        }
+
+        // Para redirecciones normales
         return redirect()->route('categorias.index')->with('success', 'Categoría eliminada exitosamente.');
     }
 }

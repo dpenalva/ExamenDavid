@@ -26,29 +26,41 @@ Route::get('/dashboard', function () {
     return redirect()->route('zapatos.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Ruta para buscar zapatos - DEBE IR ANTES DE LAS RUTAS DE RESOURCE
+Route::get('/zapatos/buscar', function(Request $request) {
+    $query = $request->input('q');
+    $categoria = $request->input('categoria');
+    
+    $zapatosQuery = Zapato::query();
+    
+    // Filtrar por búsqueda de texto
+    if (!empty($query)) {
+        $zapatosQuery->where(function($q) use ($query) {
+            $q->where('nombre', 'like', "%{$query}%")
+              ->orWhere('marca', 'like', "%{$query}%")
+              ->orWhere('talla', 'like', "%{$query}%")
+              ->orWhere('color', 'like', "%{$query}%")
+              ->orWhere('precio', 'like', "%{$query}%")
+              ->orWhere('stock', 'like', "%{$query}%");
+        });
+    }
+    
+    // Filtrar por categoría
+    if (!empty($categoria)) {
+        $zapatosQuery->where('categoria_id', $categoria);
+    }
+    
+    // Incluir relación categoría
+    $zapatos = $zapatosQuery->with('categoria')->get();
+    
+    return response()->json($zapatos);
+})->name('zapatos.buscar');
+
 // Rutas para el CRUD de zapatos
 Route::resource('zapatos', ZapatoController::class);
 
 // Rutas para el CRUD de categorías
 Route::resource('categorias', CategoriaController::class);
-
-// Ruta para buscar zapatos
-Route::get('/zapatos/buscar', function(Request $request) {
-    $query = $request->input('q');
-    
-    if (empty($query)) {
-        return Zapato::all();
-    }
-    
-    return Zapato::where('id', 'like', "%{$query}%")
-                ->orWhere('nombre', 'like', "%{$query}%")
-                ->orWhere('marca', 'like', "%{$query}%")
-                ->orWhere('talla', 'like', "%{$query}%")
-                ->orWhere('color', 'like', "%{$query}%")
-                ->orWhere('precio', 'like', "%{$query}%")
-                ->orWhere('stock', 'like', "%{$query}%")
-                ->get();
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

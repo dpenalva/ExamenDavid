@@ -124,6 +124,12 @@ class ZapatoController extends Controller
     {
         $zapato->delete();
 
+        // Para peticiones AJAX (Axios)
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => 'Zapato eliminado exitosamente'], 200);
+        }
+
+        // Para redirecciones normales
         return redirect()->route('zapatos.index')->with('success', 'Zapato eliminado exitosamente.');
     }
 }
