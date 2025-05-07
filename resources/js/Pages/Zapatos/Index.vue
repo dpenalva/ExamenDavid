@@ -8,6 +8,22 @@
             {{ $page.props.flash.success }}
         </div>
         
+        <!-- Filtro por Categoría -->
+        <div style="width: 100%; margin-bottom: 10px; background-color: #f8f9fa; padding: 15px; border: 1px solid #ddd;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="min-width: 120px; font-weight: bold;">Filtrar por Categoría:</label>
+                <select v-model="categoriaSeleccionada" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc;" @change="filtrarPorCategoria">
+                    <option value="">Todas las categorías</option>
+                    <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
+                        {{ categoria.nombre }}
+                    </option>
+                </select>
+                <button @click="limpiarFiltroCategoria" style="background-color: gray; color: white; padding: 8px 15px; border: none; cursor: pointer;">
+                    Limpiar Filtro
+                </button>
+            </div>
+        </div>
+        
         <!-- Buscador -->
         <div style="width: 100%; margin-bottom: 20px; background-color: #f8f9fa; padding: 15px; border: 1px solid #ddd;">
             <div style="display: flex; gap: 10px;">
@@ -15,7 +31,7 @@
                     type="text" 
                     v-model="busqueda" 
                     placeholder="Buscar por ID, nombre, marca, talla, color, precio o stock..." 
-                    style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
+                    style="flex-grow: 1; padding: 8px; border: 1px solid #ccc;"
                     @input="buscarZapatos"
                 />
                 <button 
@@ -86,13 +102,15 @@ import axios from 'axios';
 import { debounce } from 'lodash';
 
 const props = defineProps({
-    zapatos: Array
+    zapatos: Array,
+    categorias: Array
 });
 
-// Estado para el buscador
+// Estado para el buscador y filtros
 const busqueda = ref('');
 const todosLosZapatos = ref([]);
 const zapatosFiltrados = ref([]);
+const categoriaSeleccionada = ref('');
 
 // Inicializar los zapatos
 onMounted(() => {
@@ -100,27 +118,60 @@ onMounted(() => {
     zapatosFiltrados.value = [...props.zapatos];
 });
 
+// Filtrar por categoría
+const filtrarPorCategoria = () => {
+    if (!categoriaSeleccionada.value) {
+        // Si no hay categoría seleccionada, mostrar todos los zapatos
+        zapatosFiltrados.value = todosLosZapatos.value;
+    } else {
+        // Filtrar por la categoría seleccionada
+        zapatosFiltrados.value = todosLosZapatos.value.filter(zapato => 
+            zapato.categoria_id === parseInt(categoriaSeleccionada.value)
+        );
+    }
+    
+    // Si hay una búsqueda activa, aplicarla a los resultados ya filtrados por categoría
+    if (busqueda.value.trim() !== '') {
+        buscarLocalmente();
+    }
+};
+
+// Limpiar el filtro de categoría
+const limpiarFiltroCategoria = () => {
+    categoriaSeleccionada.value = '';
+    zapatosFiltrados.value = [...todosLosZapatos.value];
+    
+    // Si hay una búsqueda activa, aplicarla a todos los zapatos
+    if (busqueda.value.trim() !== '') {
+        buscarLocalmente();
+    }
+};
+
 // Debounce para la función de búsqueda para evitar demasiadas llamadas
-const buscarZapatos = debounce(async () => {
+const buscarZapatos = debounce(() => {
     if (busqueda.value.trim() === '') {
-        zapatosFiltrados.value = [...todosLosZapatos.value];
+        // Si no hay búsqueda, mostrar los zapatos según el filtro de categoría
+        filtrarPorCategoria();
         return;
     }
     
-    try {
-        const respuesta = await axios.get(`/zapatos/buscar?q=${busqueda.value}`);
-        zapatosFiltrados.value = respuesta.data;
-    } catch (error) {
-        console.error('Error al buscar zapatos:', error);
-        // Alternativa: hacer búsqueda local si la API falla
-        buscarLocalmente();
-    }
-}, 300); // Esperar 300ms después de que el usuario deje de escribir
+    buscarLocalmente();
+}, 300);
 
-// Método para buscar localmente (alternativa a la API)
+// Método para buscar localmente
 const buscarLocalmente = () => {
     const terminoBusqueda = busqueda.value.toLowerCase().trim();
-    zapatosFiltrados.value = todosLosZapatos.value.filter(zapato => 
+    
+    // Filtrar primero por categoría si hay una seleccionada
+    let zapatosBase = todosLosZapatos.value;
+    if (categoriaSeleccionada.value) {
+        zapatosBase = zapatosBase.filter(zapato => 
+            zapato.categoria_id === parseInt(categoriaSeleccionada.value)
+        );
+    }
+    
+    // Luego aplicar la búsqueda textual
+    zapatosFiltrados.value = zapatosBase.filter(zapato => 
         zapato.id.toString().includes(terminoBusqueda) ||
         zapato.nombre.toLowerCase().includes(terminoBusqueda) ||
         zapato.marca.toLowerCase().includes(terminoBusqueda) ||
@@ -135,7 +186,8 @@ const buscarLocalmente = () => {
 // Limpiar la búsqueda
 const limpiarBusqueda = () => {
     busqueda.value = '';
-    zapatosFiltrados.value = [...todosLosZapatos.value];
+    // Mantener el filtro por categoría si está activo
+    filtrarPorCategoria();
 };
 
 const eliminarZapato = (id) => {

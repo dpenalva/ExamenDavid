@@ -15,7 +15,8 @@ class ZapatoController extends Controller
     public function index()
     {
         return Inertia::render('Zapatos/Index', [
-            'zapatos' => Zapato::with('categoria')->get()
+            'zapatos' => Zapato::with('categoria')->get(),
+            'categorias' => Categoria::all()
         ]);
     }
 
