@@ -31,29 +31,33 @@ function handleImageError() {
 <template>
     <Head title="ZapatosApp - Inicio" />
     
-    <div class="min-h-screen flex flex-col">
+    <div style="min-height: 100vh; display: flex; flex-direction: column;">
         <Navbar />
         
-        <main class="flex-grow flex items-center justify-center bg-gray-100">
-            <div class="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-                <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Gestión de Zapatos</h1>
+        <main style="flex-grow: 1; background-color: #f8f9fa; padding: 40px 20px;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border: 1px solid #ddd;">
+                <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px; color: #333;">Gestión de Zapatos</h1>
                 
-                <div class="space-y-4">
-                    <!-- Ver listado de zapatos -->
-                    <Link 
-                        :href="route('zapatos.index')" 
-                        class="block w-full p-3 text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md transition"
-                    >
-                        Ver Zapatos
-                    </Link>
-                    
-                    <!-- Añadir nuevo zapato -->
-                    <Link 
-                        :href="route('zapatos.create')" 
-                        class="block w-full p-3 text-center bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md transition"
-                    >
-                        Añadir Zapato
-                    </Link>
+                <div style="margin: 30px 0;">
+                    <!-- Opciones simples en forma de lista -->
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;">
+                            <Link 
+                                :href="route('zapatos.index')" 
+                                style="display: block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; text-align: center;"
+                            >
+                                Ver Listado de Zapatos
+                            </Link>
+                        </li>
+                        <li style="margin-bottom: 10px;">
+                            <Link 
+                                :href="route('zapatos.create')" 
+                                style="display: block; padding: 8px 12px; background-color: #28a745; color: white; text-decoration: none; text-align: center;"
+                            >
+                                Añadir Nuevo Zapato
+                            </Link>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </main>
