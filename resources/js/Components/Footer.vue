@@ -1,14 +1,34 @@
 <template>
-    <footer class="bg-gray-800 text-white p-4 mt-auto">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p>&copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.</p>
+    <footer class="bg-gray-800 text-white py-6 mt-auto" role="contentinfo">
+        <div class="w-11/12 max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-center md:text-left text-gray-300">
+                        &copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.
+                    </p>
                 </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="hover:text-gray-300">Términos</a>
-                    <a href="#" class="hover:text-gray-300">Privacidad</a>
-                    <a href="#" class="hover:text-gray-300">Contacto</a>
+                <div class="flex flex-col sm:flex-row gap-4 text-center md:text-right">
+                    <a 
+                        href="#" 
+                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+                        aria-label="Política de privacidad"
+                    >
+                        Política de privacidad
+                    </a>
+                    <a 
+                        href="#" 
+                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+                        aria-label="Términos y condiciones"
+                    >
+                        Términos y condiciones
+                    </a>
+                    <a 
+                        href="#" 
+                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
+                        aria-label="Contacto"
+                    >
+                        Contacto
+                    </a>
                 </div>
             </div>
         </div>

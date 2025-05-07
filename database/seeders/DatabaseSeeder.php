@@ -19,5 +19,11 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Ejecutar el seeder de categorías antes que el de zapatos
+        $this->call(CategoriaSeeder::class);
+        
+        // Ejecutar el seeder de zapatos
+        $this->call(ZapatoSeeder::class);
     }
 }
