@@ -7,29 +7,6 @@
                         &copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.
                     </p>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 text-center md:text-right">
-                    <a 
-                        href="#" 
-                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
-                        aria-label="Política de privacidad"
-                    >
-                        Política de privacidad
-                    </a>
-                    <a 
-                        href="#" 
-                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
-                        aria-label="Términos y condiciones"
-                    >
-                        Términos y condiciones
-                    </a>
-                    <a 
-                        href="#" 
-                        class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 rounded px-2 py-1"
-                        aria-label="Contacto"
-                    >
-                        Contacto
-                    </a>
-                </div>
             </div>
         </div>
     </footer>
