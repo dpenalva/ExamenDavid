@@ -119,7 +119,6 @@ import { Head, Link } from '@inertiajs/vue3';
 import ZapatosLayout from '@/Layouts/ZapatosLayout.vue';
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import axios from 'axios';
 
 const props = defineProps({
     categorias: Array
@@ -165,57 +164,31 @@ const cerrarModal = () => {
 // Lista local de categorías para manejar la actualización sin recargar
 const categoriasList = ref([...props.categorias]);
 
-const confirmarEliminar = async () => {
+const confirmarEliminar = () => {
     if (!modalEliminar.value.categoria) return;
     
     const categoria = modalEliminar.value.categoria;
+    const categoriaId = categoria.id;
     
-    try {
-        // Eliminar con Axios
-        await axios.delete(route('categorias.destroy', categoria.id));
-        
-        // Actualizar la lista local eliminando la categoría
-        categoriasList.value = categoriasList.value.filter(cat => cat.id !== categoria.id);
-        
-        // Mostrar mensaje de éxito
-        mostrarMensaje('Categoría eliminada exitosamente');
-        
-        // Cerrar modal
-        cerrarModal();
-    } catch (error) {
-        console.error('Error al eliminar la categoría:', error);
-        mostrarMensaje(
-            error.response?.data?.error || 'Error al eliminar la categoría',
-            'error'
-        );
-        cerrarModal();
-    }
-};
-
-const eliminarCategoria = async (categoria) => {
-    if (categoria.zapatos_count > 0) {
-        mostrarMensaje('No se puede eliminar esta categoría porque tiene zapatos asociados.', 'error');
-        return;
-    }
+    // Actualizamos la lista local inmediatamente
+    categoriasList.value = categoriasList.value.filter(cat => cat.id !== categoriaId);
     
-    if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-        try {
-            // Eliminar con Axios
-            await axios.delete(route('categorias.destroy', categoria.id));
-            
-            // Actualizar la lista local eliminando la categoría
-            categoriasList.value = categoriasList.value.filter(cat => cat.id !== categoria.id);
-            
-            // Mostrar mensaje de éxito
-            mostrarMensaje('Categoría eliminada exitosamente');
-        } catch (error) {
-            console.error('Error al eliminar la categoría:', error);
-            mostrarMensaje(
-                error.response?.data?.error || 'Error al eliminar la categoría',
-                'error'
-            );
+    // Mostramos mensaje
+    mostrarMensaje('Categoría eliminada exitosamente');
+    
+    // Cerramos el modal
+    cerrarModal();
+    
+    // Usamos el router de Inertia para eliminar en el servidor
+    router.delete(route('categorias.destroy', categoriaId), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onError: () => {
+            // Si hay error, revertimos la eliminación local
+            categoriasList.value.push(categoria);
+            mostrarMensaje('Error al eliminar la categoría', 'error');
         }
-    }
+    });
 };
 </script>
 

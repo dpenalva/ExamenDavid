@@ -86,11 +86,18 @@ class CategoriaController extends Controller
     {
         // Verificar si hay zapatos asociados a esta categoría
         if ($categoria->zapatos()->count() > 0) {
+            if (request()->header('X-Inertia')) {
+                return back()->with('error', 'No se puede eliminar esta categoría porque tiene zapatos asociados.');
+            }
             return redirect()->route('categorias.index')->with('error', 'No se puede eliminar esta categoría porque tiene zapatos asociados.');
         }
         
         $categoria->delete();
-
+        
+        if (request()->header('X-Inertia')) {
+            return back()->with('success', 'Categoría eliminada exitosamente');
+        }
+        
         return redirect()->route('categorias.index')->with('success', 'Categoría eliminada exitosamente.');
     }
 }
