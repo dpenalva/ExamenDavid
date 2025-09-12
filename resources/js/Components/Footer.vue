@@ -1,14 +1,11 @@
 <template>
-    <footer class="bg-gray-800 text-white p-4 mt-auto">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p>&copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.</p>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="hover:text-gray-300">Términos</a>
-                    <a href="#" class="hover:text-gray-300">Privacidad</a>
-                    <a href="#" class="hover:text-gray-300">Contacto</a>
+    <footer class="bg-gray-800 text-white py-6 mt-auto" role="contentinfo">
+        <div class="w-11/12 max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-center md:text-left text-gray-300">
+                        &copy; {{ new Date().getFullYear() }} ZapatosApp. Todos los derechos reservados.
+                    </p>
                 </div>
             </div>
         </div>
