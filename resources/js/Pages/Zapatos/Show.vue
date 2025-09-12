@@ -2,61 +2,66 @@
     <Head title="Detalles de Zapato" />
     
     <ZapatosLayout>
-        <h1 class="text-2xl font-bold mb-6">Detalles del Zapato</h1>
+        <h1 style="text-align: center; color: purple; font-size: 24px; margin-bottom: 20px;">Detalles del Zapato</h1>
         
-        <div class="bg-white shadow-md rounded-lg p-6 max-w-3xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">ID:</h3>
-                    <p class="text-lg">{{ zapato.id }}</p>
+        <div style="width: 80%; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">ID:</h3>
+                    <p style="font-size: 18px;">{{ zapato.id }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Nombre:</h3>
-                    <p class="text-lg">{{ zapato.nombre }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Nombre:</h3>
+                    <p style="font-size: 18px;">{{ zapato.nombre }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Marca:</h3>
-                    <p class="text-lg">{{ zapato.marca }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Marca:</h3>
+                    <p style="font-size: 18px;">{{ zapato.marca }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Talla:</h3>
-                    <p class="text-lg">{{ zapato.talla }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Categoría:</h3>
+                    <p style="font-size: 18px;">{{ zapato.categoria ? zapato.categoria.nombre : 'Sin categoría' }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Color:</h3>
-                    <p class="text-lg">{{ zapato.color }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Talla:</h3>
+                    <p style="font-size: 18px;">{{ zapato.talla }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Precio:</h3>
-                    <p class="text-lg">{{ zapato.precio }} €</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Color:</h3>
+                    <p style="font-size: 18px;">{{ zapato.color }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Stock:</h3>
-                    <p class="text-lg">{{ zapato.stock }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Precio:</h3>
+                    <p style="font-size: 18px;">{{ zapato.precio }} €</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Fecha de creación:</h3>
-                    <p class="text-lg">{{ new Date(zapato.created_at).toLocaleString() }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Stock:</h3>
+                    <p style="font-size: 18px;">{{ zapato.stock }}</p>
                 </div>
                 
-                <div class="mb-4">
-                    <h3 class="text-sm font-semibold text-gray-600">Última actualización:</h3>
-                    <p class="text-lg">{{ new Date(zapato.updated_at).toLocaleString() }}</p>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Fecha de creación:</h3>
+                    <p style="font-size: 18px;">{{ new Date(zapato.created_at).toLocaleString() }}</p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: bold; color: #666; margin-bottom: 5px;">Última actualización:</h3>
+                    <p style="font-size: 18px;">{{ new Date(zapato.updated_at).toLocaleString() }}</p>
                 </div>
             </div>
             
-            <div class="flex items-center justify-end mt-6 space-x-4">
-                <Link :href="route('zapatos.index')" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+            <div style="text-align: center; margin-top: 20px;">
+                <Link :href="route('zapatos.index')" style="background-color: #767676; color: white; padding: 10px 15px; text-decoration: none; display: inline-block; margin-right: 10px;">
                     Volver
                 </Link>
-                <Link :href="route('zapatos.edit', zapato.id)" class="inline-flex items-center px-4 py-2 bg-yellow-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-600">
+                <Link :href="route('zapatos.edit', zapato.id)" style="background-color: #c85200; color: white; padding: 10px 15px; text-decoration: none; display: inline-block;">
                     Editar
                 </Link>
             </div>
